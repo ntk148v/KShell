@@ -63,6 +63,7 @@ class KShell
                 {
                     throw new Exception($"{args[0]}: command not found");
                 }
+
                 // Execute command
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
@@ -91,16 +92,23 @@ class KShell
     /// <param name="args"></param>
     static void builtInCD(string[] args)
     {
+        string newWorkingDir;
         if (args.Length < 2)
         {
             // cd to home with empty path
-            Directory.SetCurrentDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-            _currDir = Directory.GetCurrentDirectory();
-            return;
+            newWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+        else if (args[1] == "~") // handle a special character
+        {
+            newWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+        else
+        {
+            newWorkingDir = args[1];
         }
 
         // Change the directory
-        Directory.SetCurrentDirectory(args[1]);
+        Directory.SetCurrentDirectory(newWorkingDir);
         _currDir = Directory.GetCurrentDirectory();
     }
 
