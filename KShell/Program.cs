@@ -16,14 +16,21 @@ class KShell
         // Run command loop
         while (true)
         {
-            // Shell prefix
-            Console.Write($"{_currUser}@{_hostname}:{_currDir}$ ");
-            // Read the keyboard input
-            string? input = Console.ReadLine();
-            if (String.IsNullOrEmpty(input))
-                continue;
+            try
+            {
+                // Shell prefix
+                Console.Write($"{_currUser}@{_hostname}:{_currDir}$ ");
+                // Read the keyboard input
+                string? input = Console.ReadLine();
+                if (String.IsNullOrEmpty(input))
+                    continue;
 
-            execCommand(input);
+                execCommand(input);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 
@@ -51,6 +58,11 @@ class KShell
                 // Handle the comment case
                 break;
             default:
+                // Check if args[0] is an executable file
+                if (searchInPath(args[0]).Count < 1)
+                {
+                    throw new Exception($"{args[0]}: command not found");
+                }
                 // Execute command
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
