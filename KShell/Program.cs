@@ -9,6 +9,7 @@ class KShell
     private static string _currUser = Environment.UserName;
     private static string _currDir = Directory.GetCurrentDirectory();
     private static string _hostname = Environment.MachineName;
+    private static string[] _path = Strings.Split(Environment.GetEnvironmentVariable("PATH"), ":");
 
     static void Main(string[] args)
     {
@@ -20,9 +21,7 @@ class KShell
             // Read the keyboard input
             string? input = Console.ReadLine();
             if (String.IsNullOrEmpty(input))
-            {
                 continue;
-            }
 
             execCommand(input);
         }
@@ -44,6 +43,9 @@ class KShell
                 break;
             case "help":
                 builtInHelp(args);
+                break;
+            case "which":
+                builtInWhich(args);
                 break;
             case "#":
                 // Handle the comment case
@@ -116,6 +118,7 @@ KShell aka. Kien's Shell, written in C#.
 
     cd [dir]
     exit [n]
+    which filename ...
     help";
         }
         else
@@ -138,9 +141,20 @@ exit: exit [n]
 
     Exits the shell with a status of 'n'.";
                     break;
+                case "which":
+                    help = @"
+which: which filename ...
+
+    Locate a command.
+
+    which returns the pathnames of the files (or links) which would be executed in the current environment.
+    It does this by searching the PATH for executable files matching the names of the arguments.
+";
+                    break;
                 default:
                     help = @"
-    KShell aka. Kien's Shell, written in C#.
+KShell aka. Kien's Shell, written in C#.
+
     Type program names and arguments, and hit <enter>.
     These shell commands are defined internally.  Type `help` to see this list.
 
@@ -152,5 +166,32 @@ exit: exit [n]
         }
 
         Console.WriteLine(help);
+    }
+
+    /// <summary>
+    /// Built-in which - locate a command
+    /// which returns the pathnames of the files (or links) which would be executed in the current environment.
+    /// It does this by searching the PATH for executable files matching the file names of the arguments.
+    /// </summary>
+    /// <param name="args"></param>
+    static void builtInWhich(string[] args)
+    {
+        if (args.Length < 2)
+            return;
+        foreach (string executable in args.Skip(1).ToArray())
+        {
+            foreach (string p in searchInPath(executable))
+                Console.WriteLine(p);
+        }
+    }
+
+    static List<string> searchInPath(string executable)
+    {
+        List<string> pathNames = new List<string>();
+        // string[] pathNames = new string[0];
+        foreach (string p in _path)
+            pathNames.AddRange(Directory.GetFiles(p, executable));
+
+        return pathNames;
     }
 }
