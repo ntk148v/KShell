@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Microsoft.VisualBasic;
 
 namespace KShell;
 
@@ -9,17 +8,19 @@ class KShell
     private static string _currUser = Environment.UserName;
     private static string _currDir = Directory.GetCurrentDirectory();
     private static string _hostname = Environment.MachineName;
-    private static string[] _path = Strings.Split(Environment.GetEnvironmentVariable("PATH"), ":");
+    private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
 
     static void Main(string[] args)
     {
-        // Run command loop
+        // Load config files, if any.
+
+        // Run the input loop
         while (true)
         {
             try
             {
-                // Shell prefix
                 Console.Write($"{_currUser}@{_hostname}:{_currDir}$ ");
+
                 // Read the keyboard input
                 string? input = Console.ReadLine();
                 if (String.IsNullOrEmpty(input))
@@ -30,6 +31,9 @@ class KShell
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                // 0 - Success
+                // 1 - Fail
+                builtInExit(1);
             }
         }
     }
@@ -37,7 +41,7 @@ class KShell
     static void execCommand(string input)
     {
         // Split the input separate the command and the arguments
-        string[] args = Strings.Split(Strings.RTrim(input), " ");
+        string[] args = input.TrimEnd().Split(" ");
 
         // Check for the built-in shell commands
         switch (args[0])
@@ -48,11 +52,11 @@ class KShell
             case "exit":
                 builtInExit(0);
                 break;
-            case "help":
-                builtInHelp(args);
-                break;
             case "which":
                 builtInWhich(args);
+                break;
+            case "help":
+                builtInHelp(args);
                 break;
             case "#":
                 // Handle the comment case
@@ -68,13 +72,15 @@ class KShell
                 ProcessStartInfo startInfo = new ProcessStartInfo()
                 {
                     FileName = args[0],
-                    Arguments = Strings.Join(args.Skip(1).ToArray()),
+                    Arguments = string.Join("", args.Skip(1).ToArray()),
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                 };
 
                 Process proc = new Process() { StartInfo = startInfo };
 
                 // Clear the standard output
+                // NOTE(kiennt26): This is a trick to remove the prefix from the command output
                 proc.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
                 proc.Start();
                 proc.BeginOutputReadLine();
