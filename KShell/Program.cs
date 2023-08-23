@@ -26,19 +26,19 @@ class KShell
                 if (String.IsNullOrEmpty(input))
                     continue;
 
-                execCommand(input);
+                ExecCommand(input);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 // 0 - Success
                 // 1 - Fail
-                builtInExit(1);
+                BuiltInExit(1);
             }
         }
     }
 
-    static void execCommand(string input)
+    static void ExecCommand(string input)
     {
         // Split the input separate the command and the arguments
         string[] args = input.TrimEnd().Split(" ");
@@ -47,23 +47,23 @@ class KShell
         switch (args[0])
         {
             case "cd":
-                builtInCD(args);
+                BuiltInCD(args);
                 break;
             case "exit":
-                builtInExit(0);
+                BuiltInExit(0);
                 break;
             case "which":
-                builtInWhich(args);
+                BuiltInWhich(args);
                 break;
             case "help":
-                builtInHelp(args);
+                BuiltInHelp(args);
                 break;
             case "#":
                 // Handle the comment case
                 break;
             default:
                 // Check if args[0] is an executable file
-                if (searchInPath(args[0]).Count < 1)
+                if (SearchInPath(args[0]).Count < 1)
                 {
                     throw new Exception($"{args[0]}: command not found");
                 }
@@ -96,7 +96,7 @@ class KShell
     /// cd [dir]
     /// </summary>
     /// <param name="args"></param>
-    static void builtInCD(string[] args)
+    static void BuiltInCD(string[] args)
     {
         string newWorkingDir;
         if (args.Length < 2)
@@ -124,13 +124,13 @@ class KShell
     /// exit [n]
     /// </summary>
     /// <param name="exitCode"></param>
-    static void builtInExit(int exitCode)
+    static void BuiltInExit(int exitCode)
     {
         // TODO(kiennt26): Handle the given exit code, it should be in range 0-255
         Environment.Exit(exitCode);
     }
 
-    static void builtInHelp(string[] args)
+    static void BuiltInHelp(string[] args)
     {
         string help;
         if (args.Length < 2)
@@ -200,18 +200,18 @@ KShell aka. Kien's Shell, written in C#.
     /// It does this by searching the PATH for executable files matching the file names of the arguments.
     /// </summary>
     /// <param name="args"></param>
-    static void builtInWhich(string[] args)
+    static void BuiltInWhich(string[] args)
     {
         if (args.Length < 2)
             return;
         foreach (string executable in args.Skip(1).ToArray())
         {
-            foreach (string p in searchInPath(executable))
+            foreach (string p in SearchInPath(executable))
                 Console.WriteLine(p);
         }
     }
 
-    static List<string> searchInPath(string executable)
+    static List<string> SearchInPath(string executable)
     {
         List<string> pathNames = new List<string>();
         // string[] pathNames = new string[0];
