@@ -71,6 +71,9 @@ class KShell
             case "#":
                 // Handle the comment case
                 break;
+            case "!!":
+                ExecLastCommand();
+                break;
             default:
                 // Check if args[0] is an executable file
                 if (SearchInPath(args[0]).Count < 1)
@@ -257,5 +260,18 @@ KShell aka. Kien's Shell, written in C#.
     private static void SaveCommandHistory()
     {
         File.WriteAllLines(_historyFilePath, _commandHistory);
+    }
+
+    /// <summary>
+    /// Execute the last command get from _commandHistory
+    /// </summary>
+    private static void ExecLastCommand()
+    {
+        if (_commandHistory.Count > 0)
+        {
+            var lastCommand = _commandHistory.Last();
+            Console.WriteLine(lastCommand);
+            ExecCommand(lastCommand);
+        }
     }
 }
