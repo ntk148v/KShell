@@ -7,14 +7,19 @@ class KShell
     // Test it in Linux only
     private static string _currUser = Environment.UserName;
     private static string _currDir = Directory.GetCurrentDirectory();
+    private static readonly string _homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     private static string _hostname = Environment.MachineName;
     private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
     private static List<string> _commandHistory = new List<string>();
     private static int _currentCommandIndex = -1;
+    private static string _historyFilePath = Path.Combine(_homeDir, ".kshell_history");
 
     static void Main()
     {
         // Load config files, if any.
+
+        // Load command history
+        LoadCommandHistory();
 
         // Run the input loop
         while (true)
@@ -111,11 +116,11 @@ class KShell
         if (args.Length < 2)
         {
             // cd to home with empty path
-            newWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            newWorkingDir = _homeDir;
         }
         else if (args[1] == "~") // handle a special character
         {
-            newWorkingDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            newWorkingDir = _homeDir;
         }
         else
         {
@@ -135,6 +140,9 @@ class KShell
     /// <param name="exitCode"></param>
     private static void BuiltInExit(int exitCode)
     {
+        // Save command before exit
+        SaveCommandHistory();
+
         // TODO(kiennt26): Handle the given exit code, it should be in range 0-255
         Environment.Exit(exitCode);
     }
@@ -229,5 +237,25 @@ KShell aka. Kien's Shell, written in C#.
     {
         for (var i = 0; i < _commandHistory.Count; i++)
             Console.WriteLine($"{i + 1}: {_commandHistory[i]}");
+    }
+
+    /// <summary>
+    /// Load command history from _historyFilePath
+    /// </summary>
+    private static void LoadCommandHistory()
+    {
+        if (File.Exists(_historyFilePath))
+        {
+            _commandHistory = File.ReadAllLines(_historyFilePath).ToList();
+            _currentCommandIndex = _commandHistory.Count - 1;
+        }
+    }
+
+    /// <summary>
+    /// Save all commands in this session to file
+    /// </summary>
+    private static void SaveCommandHistory()
+    {
+        File.WriteAllLines(_historyFilePath, _commandHistory);
     }
 }
