@@ -9,6 +9,8 @@ class KShell
     private static string _currDir = Directory.GetCurrentDirectory();
     private static string _hostname = Environment.MachineName;
     private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
+    private static List<string> _commandHistory = new List<string>();
+    private static int _currentCommandIndex = -1;
 
     static void Main()
     {
@@ -58,6 +60,9 @@ class KShell
             case "help":
                 BuiltInHelp(args);
                 break;
+            case "history":
+                BuiltInHistory();
+                break;
             case "#":
                 // Handle the comment case
                 break;
@@ -87,6 +92,10 @@ class KShell
                 proc.WaitForExit();
                 break;
         }
+
+        // Add command to history
+        _commandHistory.Add(input);
+        _currentCommandIndex = _commandHistory.Count - 1;
     }
 
     /// <summary>
@@ -211,5 +220,14 @@ KShell aka. Kien's Shell, written in C#.
             pathNames.AddRange(Directory.GetFiles(p, executable));
 
         return pathNames;
+    }
+
+    /// <summary>
+    /// Display history list
+    /// </summary>
+    private static void BuiltInHistory()
+    {
+        for (var i = 0; i < _commandHistory.Count; i++)
+            Console.WriteLine($"{i + 1}: {_commandHistory[i]}");
     }
 }
