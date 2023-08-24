@@ -191,6 +191,13 @@ which: which filename ...
     which returns the path names of the files (or links) which would be executed in the current environment.
     It does this by searching the PATH for executable files matching the names of the arguments.
 ",
+                "history" => @"
+history: history
+
+    Display the history list.
+
+    Display the history list with line numbers
+",
                 _ => @"
 KShell aka. Kien's Shell, written in C#.
 
