@@ -88,16 +88,14 @@ class KShell
                     Arguments = string.Join("", args.Skip(1).ToArray()),
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+                    UseShellExecute = false,
                 };
 
                 var proc = new Process() { StartInfo = startInfo };
-
-                // Clear the standard output
-                // NOTE(kiennt26): This is a trick to remove the prefix from the command output
-                proc.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
                 proc.Start();
-                proc.BeginOutputReadLine();
+                var output = proc.StandardOutput.ReadToEnd();
                 proc.WaitForExit();
+                Console.WriteLine(output);
                 break;
         }
 
