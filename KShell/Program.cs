@@ -10,7 +10,7 @@ class KShell
     private static string _hostname = Environment.MachineName;
     private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
 
-    static void Main(string[] args)
+    static void Main()
     {
         // Load config files, if any.
 
@@ -22,8 +22,8 @@ class KShell
                 Console.Write($"{_currUser}@{_hostname}:{_currDir}$ ");
 
                 // Read the keyboard input
-                string? input = Console.ReadLine();
-                if (String.IsNullOrEmpty(input))
+                var input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input))
                     continue;
 
                 ExecCommand(input);
@@ -38,10 +38,10 @@ class KShell
         }
     }
 
-    static void ExecCommand(string input)
+    private static void ExecCommand(string input)
     {
         // Split the input separate the command and the arguments
-        string[] args = input.TrimEnd().Split(" ");
+        var args = input.TrimEnd().Split(" ");
 
         // Check for the built-in shell commands
         switch (args[0])
@@ -69,7 +69,7 @@ class KShell
                 }
 
                 // Execute command
-                ProcessStartInfo startInfo = new ProcessStartInfo()
+                var startInfo = new ProcessStartInfo()
                 {
                     FileName = args[0],
                     Arguments = string.Join("", args.Skip(1).ToArray()),
@@ -77,7 +77,7 @@ class KShell
                     RedirectStandardError = true,
                 };
 
-                Process proc = new Process() { StartInfo = startInfo };
+                var proc = new Process() { StartInfo = startInfo };
 
                 // Clear the standard output
                 // NOTE(kiennt26): This is a trick to remove the prefix from the command output
@@ -124,13 +124,13 @@ class KShell
     /// exit [n]
     /// </summary>
     /// <param name="exitCode"></param>
-    static void BuiltInExit(int exitCode)
+    private static void BuiltInExit(int exitCode)
     {
         // TODO(kiennt26): Handle the given exit code, it should be in range 0-255
         Environment.Exit(exitCode);
     }
 
-    static void BuiltInHelp(string[] args)
+    private static void BuiltInHelp(string[] args)
     {
         string help;
         if (args.Length < 2)
@@ -149,36 +149,29 @@ KShell aka. Kien's Shell, written in C#.
         }
         else
         {
-            switch (args[1])
+            help = args[1] switch
             {
-                case "cd":
-                    help = @"
+                "cd" => @"
 cd: cd [dir]
 
     Change the shell working directory.
 
-    Change the current directory to 'dir'. The default 'dir' is the value of the user's home directory.";
-                    break;
-                case "exit":
-                    help = @"
+    Change the current directory to 'dir'. The default 'dir' is the value of the user's home directory.",
+                "exit" => @"
 exit: exit [n]
 
     Exit the shell.
 
-    Exits the shell with a status of 'n'.";
-                    break;
-                case "which":
-                    help = @"
+    Exits the shell with a status of 'n'.",
+                "which" => @"
 which: which filename ...
 
     Locate a command.
 
-    which returns the pathnames of the files (or links) which would be executed in the current environment.
+    which returns the path names of the files (or links) which would be executed in the current environment.
     It does this by searching the PATH for executable files matching the names of the arguments.
-";
-                    break;
-                default:
-                    help = @"
+",
+                _ => @"
 KShell aka. Kien's Shell, written in C#.
 
     Type program names and arguments, and hit <enter>.
@@ -186,9 +179,8 @@ KShell aka. Kien's Shell, written in C#.
 
     cd [dir]
     exit [n]
-    help";
-                    break;
-            }
+    help"
+            };
         }
 
         Console.WriteLine(help);
@@ -196,26 +188,26 @@ KShell aka. Kien's Shell, written in C#.
 
     /// <summary>
     /// Built-in which - locate a command
-    /// which returns the pathnames of the files (or links) which would be executed in the current environment.
+    /// which returns the path names of the files (or links) which would be executed in the current environment.
     /// It does this by searching the PATH for executable files matching the file names of the arguments.
     /// </summary>
     /// <param name="args"></param>
-    static void BuiltInWhich(string[] args)
+    private static void BuiltInWhich(string[] args)
     {
         if (args.Length < 2)
             return;
-        foreach (string executable in args.Skip(1).ToArray())
+        foreach (var executable in args.Skip(1).ToArray())
         {
-            foreach (string p in SearchInPath(executable))
+            foreach (var p in SearchInPath(executable))
                 Console.WriteLine(p);
         }
     }
 
-    static List<string> SearchInPath(string executable)
+    private static List<string> SearchInPath(string executable)
     {
-        List<string> pathNames = new List<string>();
+        var pathNames = new List<string>();
         // string[] pathNames = new string[0];
-        foreach (string p in _path)
+        foreach (var p in _path)
             pathNames.AddRange(Directory.GetFiles(p, executable));
 
         return pathNames;
