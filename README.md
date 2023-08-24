@@ -6,4 +6,4 @@ KShell is a simle implementation of a shell in C#. It demonstrates the basics of
 - Arguments must be separated by whitespace.
 - No quoting arguments or escaping whitespace.
 - No piping or redirection.
-- Only built-ins are: `cd`, `help`, `exit`, `which`.
+- Only built-ins are: `cd`, `help`, `exit`, `which`, `history`.
