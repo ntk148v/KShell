@@ -26,6 +26,10 @@ class KShell
         {
             try
             {
+                // 0 - Success
+                // 1 - Fail
+                Environment.ExitCode = 0;
+
                 Console.Write($"{_currUser}@{_hostname}:{_currDir}$ ");
 
                 // Read the keyboard input
@@ -40,7 +44,7 @@ class KShell
                 Console.WriteLine(e.Message);
                 // 0 - Success
                 // 1 - Fail
-                BuiltInExit(1);
+                Environment.ExitCode = 1;
             }
         }
     }
@@ -57,7 +61,7 @@ class KShell
                 BuiltInCD(args);
                 break;
             case "exit":
-                BuiltInExit(0);
+                BuiltInExit();
                 break;
             case "which":
                 BuiltInWhich(args);
@@ -139,13 +143,13 @@ class KShell
     /// exit [n]
     /// </summary>
     /// <param name="exitCode"></param>
-    private static void BuiltInExit(int exitCode)
+    private static void BuiltInExit()
     {
         // Save command before exit
         SaveCommandHistory();
 
         // TODO(kiennt26): Handle the given exit code, it should be in range 0-255
-        Environment.Exit(exitCode);
+        Environment.Exit(Environment.ExitCode);
     }
 
     private static void BuiltInHelp(string[] args)
