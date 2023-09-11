@@ -7,6 +7,7 @@ class KShell
     // Test it in Linux only
     private static string _currUser = Environment.UserName;
     private static string _currDir = Directory.GetCurrentDirectory();
+    private static string _prevDir = _currDir;
     private static readonly string _homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
     private static string _hostname = Environment.MachineName;
     private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
@@ -127,6 +128,10 @@ class KShell
         {
             newWorkingDir = _homeDir;
         }
+        else if (args[1] == "-")
+        {
+            newWorkingDir = _prevDir;
+        }
         else
         {
             newWorkingDir = args[1];
@@ -134,6 +139,7 @@ class KShell
 
         // Change the directory
         Directory.SetCurrentDirectory(newWorkingDir);
+        _prevDir = _currDir;
         _currDir = Directory.GetCurrentDirectory();
     }
 
