@@ -2,17 +2,26 @@
 
 namespace KShell;
 
+// Test it in Linux only
 class KShell
 {
-    // Test it in Linux only
+    // Current user
     private static string _currUser = Environment.UserName;
+    // Current directory
     private static string _currDir = Directory.GetCurrentDirectory();
+    // Previous directory, by default it is the same as current directory.
     private static string _prevDir = _currDir;
+    // Home directory
     private static readonly string _homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    // Hostname - machine's hostname
     private static string _hostname = Environment.MachineName;
-    private static string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
+    // Path - Get $PATH environment variables, contains the list of directories of executable files.
+    private static readonly string[] _path = Environment.GetEnvironmentVariable("PATH").Split(":");
+    // A list of executed commands
     private static List<string> _commandHistory = new List<string>();
+    // Current command index
     private static int _currentCommandIndex = -1;
+    // The default file to store command history
     private static string _historyFilePath = Path.Combine(_homeDir, ".kshell_history");
 
     static void Main()
@@ -184,7 +193,11 @@ cd: cd [dir]
 
     Change the shell working directory.
 
-    Change the current directory to 'dir'. The default 'dir' is the value of the user's home directory.",
+    Change the current directory to 'dir'. The default 'dir' is the value of the user's home directory.
+    Special cases:
+    - `cd ~`: Change the current directory to $HOME.
+    - `cd -`: Move back to the previous directory.
+    - `cd`: Change current directory to $HOME.",
                 "exit" => @"
 exit: exit [n]
 
